@@ -55,12 +55,15 @@ app.post('/webhook', async (req, res) => {
     const message = body.text?.message || body.text;
     if (!phone || !message) return;
 
+    console.log('Mensagem recebida de:', phone);
+
     if (!conversas[phone]) conversas[phone] = [];
     conversas[phone].push({ role: 'user', content: message });
     if (conversas[phone].length > 20) {
       conversas[phone] = conversas[phone].slice(-20);
     }
 
+    console.log('Chamando Anthropic...');
     const response = await axios.post(
       'https://api.anthropic.com/v1/messages',
       {
@@ -79,14 +82,16 @@ app.post('/webhook', async (req, res) => {
     );
 
     const reply = response.data.content[0].text;
+    console.log('Resposta da MAVI gerada com sucesso');
     conversas[phone].push({ role: 'assistant', content: reply });
 
-    await axios.post(
-      `https://api.z-api.io/instances/${ZAPI_INSTANCE}/token/${ZAPI_TOKEN}/send-text`,
-      { phone, message: reply }
-    );
+    const zapiUrl = `https://api.z-api.io/instances/${ZAPI_INSTANCE}/token/${ZAPI_TOKEN}/send-text`;
+    console.log('Enviando para Z-API URL:', zapiUrl);
 
- } catch (err) {
+    await axios.post(zapiUrl, { phone, message: reply });
+    console.log('Mensagem enviada com sucesso!');
+
+  } catch (err) {
     console.error('Erro completo:', JSON.stringify(err.response?.data || err.message));
     console.error('ZAPI_INSTANCE:', ZAPI_INSTANCE);
     console.error('ZAPI_TOKEN:', ZAPI_TOKEN ? 'definido' : 'VAZIO');
@@ -94,7 +99,7 @@ app.post('/webhook', async (req, res) => {
   }
 });
 
-app.get('/', (req, res) => res.send('MAVI online v3'));
+app.get('/', (req, res) => res.send('MAVI online v4'));
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`MAVI rodando na porta ${PORT}`));
