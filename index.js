@@ -5,7 +5,7 @@ app.use(express.json());
 
 const ZAPI_INSTANCE = process.env.ZAPI_INSTANCE;
 const ZAPI_TOKEN = process.env.ZAPI_TOKEN;
-const OPENROUTER_KEY = process.env.OPENROUTER_KEY;
+const ANTHROPIC_KEY = process.env.ANTHROPIC_KEY;
 
 const SYSTEM_PROMPT = `Você é MAVI, consultora digital sênior especializada exclusivamente em planos de saúde. Atende apenas corretores — nunca clientes finais. Seu tom é profissional, empático e comercialmente assertivo, sempre em português.
 
@@ -62,25 +62,23 @@ app.post('/webhook', async (req, res) => {
     }
 
     const response = await axios.post(
-      'https://openrouter.ai/api/v1/chat/completions',
+      'https://api.anthropic.com/v1/messages',
       {
-        model: 'qwen/qwen3-30b-a3b',
-        messages: [
-          { role: 'system', content: SYSTEM_PROMPT },
-          ...conversas[phone]
-        ]
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 1024,
+        system: SYSTEM_PROMPT,
+        messages: conversas[phone]
       },
       {
         headers: {
-          'Authorization': `Bearer ${OPENROUTER_KEY}`,
-          'Content-Type': 'application/json',
-          'HTTP-Referer': 'https://mavi-bot-production.up.railway.app',
-          'X-Title': 'MAVI Bot'
+          'x-api-key': ANTHROPIC_KEY,
+          'anthropic-version': '2023-06-01',
+          'content-type': 'application/json'
         }
       }
     );
 
-    const reply = response.data.choices[0].message.content;
+    const reply = response.data.content[0].text;
     conversas[phone].push({ role: 'assistant', content: reply });
 
     await axios.post(
@@ -93,7 +91,7 @@ app.post('/webhook', async (req, res) => {
   }
 });
 
-app.get('/', (req, res) => res.send('MAVI online v2'));
+app.get('/', (req, res) => res.send('MAVI online v3'));
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`MAVI rodando na porta ${PORT}`));
