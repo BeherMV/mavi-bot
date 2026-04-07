@@ -34,7 +34,7 @@ Nunca oferece diagnósticos médicos. Atende apenas corretores.
 
 ## MedSenior — Rede credenciada
 Essencial: Hospital Iguaçu, Cruz Vermelha, MedSenior Batel, Proctoclin, Oncoville, Uniica, Porto Seguro, Fraturas Novo Mundo. Labs: Cedav, Citolab, Examini, Lanac, Metrolab, Quanta, X-Leme
-PR3/PR4: + Santa Brígida, Vita Curitiba, Vita Batel, N.Sra.Pilar, Santa Casa, São Lucas, Hospital XV. Labs: + A+(Fleury), Clinilabor, DAPI
+PR3/PR4: + Santa Brígida, Vita Curitiba, Vita Batel, N.Sra.Pilar, Santa Casa, São Lucas, Hospital XV. Labs: + A+(Fleury), Clinilabor
 Black: mesma rede PR3/PR4 + Frischmann Aisengart
 
 ## Objeções comuns
