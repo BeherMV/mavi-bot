@@ -93,7 +93,7 @@ app.post('/webhook', async (req, res) => {
   }
 });
 
-app.get('/', (req, res) => res.send('MAVI online'));
+app.get('/', (req, res) => res.send('MAVI online v2'));
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`MAVI rodando na porta ${PORT}`));
