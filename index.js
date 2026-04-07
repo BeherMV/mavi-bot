@@ -86,8 +86,11 @@ app.post('/webhook', async (req, res) => {
       { phone, message: reply }
     );
 
-  } catch (err) {
-    console.error('Erro:', err.response?.data || err.message);
+ } catch (err) {
+    console.error('Erro completo:', JSON.stringify(err.response?.data || err.message));
+    console.error('ZAPI_INSTANCE:', ZAPI_INSTANCE);
+    console.error('ZAPI_TOKEN:', ZAPI_TOKEN ? 'definido' : 'VAZIO');
+    console.error('ANTHROPIC_KEY:', ANTHROPIC_KEY ? 'definido' : 'VAZIO');
   }
 });
 
