@@ -64,7 +64,7 @@ app.post('/webhook', async (req, res) => {
     const response = await axios.post(
       'https://openrouter.ai/api/v1/chat/completions',
       {
-        model: 'google/gemini-2.0-flash-exp:free',
+        model: 'mistralai/mistral-7b-instruct:free',
         messages: [
           { role: 'system', content: SYSTEM_PROMPT },
           ...conversas[phone]
