@@ -5,7 +5,7 @@ app.use(express.json());
 
 const ZAPI_INSTANCE = process.env.ZAPI_INSTANCE;
 const ZAPI_TOKEN = process.env.ZAPI_TOKEN;
-const GEMINI_KEY = process.env.GEMINI_KEY;
+const OPENROUTER_KEY = process.env.OPENROUTER_KEY;
 
 const SYSTEM_PROMPT = `Você é MAVI, consultora digital sênior especializada exclusivamente em planos de saúde. Atende apenas corretores — nunca clientes finais. Seu tom é profissional, empático e comercialmente assertivo, sempre em português.
 
@@ -46,41 +46,48 @@ const conversas = {};
 
 app.post('/webhook', async (req, res) => {
   res.sendStatus(200);
-  
+
   try {
     const body = req.body;
-    
     if (!body || body.fromMe) return;
-    
+
     const phone = body.phone;
     const message = body.text?.message || body.text;
-    
     if (!phone || !message) return;
-    
+
     if (!conversas[phone]) conversas[phone] = [];
-    conversas[phone].push({ role: 'user', parts: [{ text: message }] });
-    
+    conversas[phone].push({ role: 'user', content: message });
     if (conversas[phone].length > 20) {
       conversas[phone] = conversas[phone].slice(-20);
     }
-    
-    const geminiRes = await axios.post(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_KEY}`,
+
+    const response = await axios.post(
+      'https://openrouter.ai/api/v1/chat/completions',
       {
-        system_instruction: { parts: [{ text: SYSTEM_PROMPT }] },
-        contents: conversas[phone]
+        model: 'meta-llama/llama-3.3-70b-instruct:free',
+        messages: [
+          { role: 'system', content: SYSTEM_PROMPT },
+          ...conversas[phone]
+        ]
+      },
+      {
+        headers: {
+          'Authorization': `Bearer ${OPENROUTER_KEY}`,
+          'Content-Type': 'application/json',
+          'HTTP-Referer': 'https://mavi-bot-production.up.railway.app',
+          'X-Title': 'MAVI Bot'
+        }
       }
     );
-    
-    const reply = geminiRes.data.candidates[0].content.parts[0].text;
-    
-    conversas[phone].push({ role: 'model', parts: [{ text: reply }] });
-    
+
+    const reply = response.data.choices[0].message.content;
+    conversas[phone].push({ role: 'assistant', content: reply });
+
     await axios.post(
       `https://api.z-api.io/instances/${ZAPI_INSTANCE}/token/${ZAPI_TOKEN}/send-text`,
       { phone, message: reply }
     );
-    
+
   } catch (err) {
     console.error('Erro:', err.response?.data || err.message);
   }
