@@ -90,7 +90,7 @@ app.post('/webhook', async (req, res) => {
 
     await axios.post(zapiUrl, { phone, message: reply }, {
       headers: { 
-        'Client-Token': process.env.ZAPI_CLIENT_TOKEN || ZAPI_TOKEN
+        'Client-Token': process.env.ZAPI_SECURITY_TOKEN
       }
     });
     console.log('Mensagem enviada com sucesso!');
